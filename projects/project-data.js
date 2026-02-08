@@ -1,7 +1,7 @@
 // Centralized project data for dynamic loading
 const projectsData = {
   "aws-portfolio": {
-    title: "AWS Cloud Infrastructure Portfolio",
+    title: "Personal Portfolio Hosting on AWS",
     tagline: "Production-ready static website with automated CI/CD pipeline",
     badges: ["AWS S3", "CloudFront", "Route 53", "GitHub Actions", "IAM"],
     

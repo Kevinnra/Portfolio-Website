@@ -239,7 +239,7 @@ body {
   margin-top: 3rem;
 }
 .skill-card {
-  border: 1px solid var(--transparent-color-line);
+  border: 1px solid var(--bold-color);
   background: var(--hover-color);
   padding: 1.5rem 0.5rem 0 0.5rem;
   border-radius: 15px;
@@ -248,7 +248,7 @@ body {
 
 .skill-card:hover {
   transform: translateY(-5px);
-  /* background: var(--transparent-color-line); */
+  background: var(--transparent-color-line);
   border: 1px solid var(--accent-color);
 }
 
@@ -432,8 +432,9 @@ body {
 
 footer {
   display: block;
-  color: var(--hover-color);
-  background-color: black;
+  font-size: 0.9rem;
+  color: var(--text-gray);
+  background-color: var(--navbar-color);
   text-align: center;
   padding: 1.5rem;
   margin-top:5rem;

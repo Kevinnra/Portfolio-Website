@@ -707,7 +707,7 @@ body {
 /* Footer */
 footer {
   display: block;
-  color: var(--hover-color);
+  color: var(--text-gray);
   background-color: black;
   text-align: center;
   padding: 1.5rem;
