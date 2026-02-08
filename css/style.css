@@ -307,7 +307,7 @@ body {
 
 .project-content p {
   color: var(--text-gray);
-  margin-bottom: 1.5rem;
+  padding: 1rem 0;
 }
 
 .project-link {
