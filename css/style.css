@@ -239,8 +239,8 @@ body {
   margin-top: 3rem;
 }
 .skill-card {
-  border: 1px solid var(--bold-color);
-  background: var(--hover-color);
+  border: 1px solid var(--transparent-color-line);
+  background: var(--transparent-color);
   padding: 1.5rem 0.5rem 0 0.5rem;
   border-radius: 15px;
   transition: all 0.3s;
@@ -471,43 +471,54 @@ footer {
 
 /* mobile styles ##############################################*/
 @media screen and (max-width: 977px){
+  .section h2{
+    font-size: 1.3rem;
+  }
+  footer{
+    font-size: 0.7rem;
+  }
   #open-sidebar-button, #close-sidebar-button{
     display: block;
   }
-
+  .X-button-container{
+    display: block;
+    margin-right: 0;
+    padding-left: 11rem;
+    padding-top: 0.5rem;
+  }
   /* nav container */
   #navbar{
     display: flex;
     flex-direction: column;
     position: fixed;
-    top: 0;
     right: -100%;
     background: rgba(10, 10, 10, 0.2);
     backdrop-filter: blur(5px);
-    height: 100vh;
+    height: 100%;
     width: 100%;
     width: min(15em, 100%);
     z-index: 10;
     border-left: 1px solid var(--hover-color);
     transition: right 300ms ease-out;
-    justify-content: flex-start;
+    justify-content: space-between;
+    padding: 0 0 2rem 0;
   }
   /* nav list items */
   #navbar ul{
     width: 100%;
     flex-direction: column;
     align-items: center;
-    margin-bottom: 2em;
+    gap: 2rem;
   }
-  #navbar ul > :first-child {
-  align-self: flex-end; /* push only first item to the right */
+
+  .accent-link-container {
+    transform: translateY(-9rem);
   }
   .accent-link {
-    background-color: var(--accent-color);
     text-align: center;
   }
 
-  /* kr container logo for mobile */
+  /* kr container logo with burger menu for mobile */
   #topbar-menu {
     position: fixed;
     top: 0;
@@ -558,12 +569,7 @@ footer {
     display: block;
     margin-left: auto;
     padding-bottom: 0.5em;
-  }
-
-  .X-button-container{
-    display: block;
-    margin-right: 0;
-  }
+  }    
 
   #close-sidebar-button svg{
     width: 32px;
@@ -602,9 +608,9 @@ footer {
   #navbar .logo a{
     font-size: 0.9em;
   }
-  .btn {
+  /* .btn {
     border: solid 1px var(--accent-color);
-  }
+  } */
   .about-me-content {
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   }
