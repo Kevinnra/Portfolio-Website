@@ -54,20 +54,20 @@ const projectsData = {
     ],
     
     // Optional: Key Features
-    features: [
-      {
-        title: "Intelligent Cache Invalidation",
-        description: "Pipeline automatically detects modified HTML, CSS, and JavaScript files using Git comparison, then invalidates only those specific CloudFront paths. This reduces API costs by 80% while ensuring users always see the latest content."
-      },
-      {
-        title: "Zero-Downtime Deployments",
-        description: "S3 versioning combined with CloudFront's edge caching ensures continuous availability during updates. The deployment process includes automated health checks and rollback capabilities."
-      },
-      {
-        title: "Security Best Practices",
-        description: "Implementation includes dedicated IAM users with minimal permissions, S3 server-side encryption, GitHub Secrets for credential management, and no hardcoded secrets in source code."
-      }
-    ],
+    // features: [
+    //   {
+    //     title: "Intelligent Cache Invalidation",
+    //     description: "Pipeline automatically detects modified HTML, CSS, and JavaScript files using Git comparison, then invalidates only those specific CloudFront paths. This reduces API costs by 80% while ensuring users always see the latest content."
+    //   },
+    //   {
+    //     title: "Zero-Downtime Deployments",
+    //     description: "S3 versioning combined with CloudFront's edge caching ensures continuous availability during updates. The deployment process includes automated health checks and rollback capabilities."
+    //   },
+    //   {
+    //     title: "Security Best Practices",
+    //     description: "Implementation includes dedicated IAM users with minimal permissions, S3 server-side encryption, GitHub Secrets for credential management, and no hardcoded secrets in source code."
+    //   }
+    // ],
     
     challenges: [
       {
