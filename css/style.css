@@ -334,9 +334,7 @@ body {
 .project-badge {
   display: inline-block;
   margin-top: 0.5rem;
-  /* margin-bottom: 1rem; */
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  /* color: var(--hover-color); */
   font-weight: lighter;
   padding: 0.2em 0.6em;
   border-radius: 5px;
@@ -425,7 +423,6 @@ body {
 }
 
 .contact-link:hover {
-  /* background: var(--accent-color); */
   transform: translateY(-4px);
   border: solid 2px var(--accent-color);
 }
@@ -608,9 +605,7 @@ footer {
   #navbar .logo a{
     font-size: 0.9em;
   }
-  /* .btn {
-    border: solid 1px var(--accent-color);
-  } */
+
   .about-me-content {
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   }
