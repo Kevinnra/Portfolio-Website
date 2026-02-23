@@ -1,1 +1,28 @@
+# macOS artifacts
 .DS_Store
+.AppleDouble
+.LSOverride
+*.swp
+*.swo
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# IDE and Editor files
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# Node modules (if applicable)
+node_modules/
+npm-debug.log
+
+# Build outputs
+dist/
+build/
+
+# OS temporary files
+Thumbs.db
