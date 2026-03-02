@@ -1,5 +1,5 @@
 // Contact Form Handler
-const API_ENDPOINT = 'https://iaw3hfgw1g.execute-api.ap-northeast-1.amazonaws.com/prod/contact';  // ⚠️ REPLACE THIS
+const API_ENDPOINT = 'https://iaw3hfgw1g.execute-api.ap-northeast-1.amazonaws.com/prod/contact';
 
 document.addEventListener('DOMContentLoaded', function() {
   const form = document.getElementById('contact-form');
