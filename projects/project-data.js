@@ -535,6 +535,230 @@ jobs:
     ]
   },
 
+  "flask-ecs-api": {
+    title: "Containerized REST API on AWS ECS",
+    tagline: "Python Flask API containerized with Docker and deployed on ECS Fargate with RDS, ALB, and automated CI/CD",
+    badges: ["Docker", "ECS Fargate", "ECR", "RDS PostgreSQL", "VPC", "ALB", "GitHub Actions", "Secrets Manager", "Python", "Flask"],
+
+    links: {
+      github: "https://github.com/kevinnra/flask-ecs-api"
+    },
+
+    overview: {
+      problem: "Deploying a web application that scales reliably, keeps sensitive data isolated from the internet, and updates automatically when code changes — without manual steps.",
+      solution: "Built a containerized Flask REST API deployed on ECS Fargate inside a custom VPC with public and private subnet separation. The database and application containers have no direct internet access. All deployments happen automatically through a GitHub Actions CI/CD pipeline using OIDC authentication — no credentials stored anywhere.",
+      results: [
+        "Fully automated deployment pipeline: push to main, live in production in under 3 minutes",
+        "Zero stored credentials — GitHub authenticates to AWS via OIDC and assumes a least-privilege role at runtime",
+        "Database unreachable from internet — security groups allow port 5432 only from the ECS security group",
+        "Application Load Balancer health checks ensure traffic only reaches healthy containers"
+      ]
+    },
+
+    architecture: {
+      image: "/Resources/images/flask-ecs-architecture.png",
+      description: "Traffic enters the VPC through an Internet Gateway and reaches the Application Load Balancer in the public subnets. The ALB forwards requests to ECS Fargate tasks running in private subnets, which connect to RDS PostgreSQL also in private subnets. ECS tasks pull their Docker images from ECR via the NAT Gateway. Database credentials are stored in AWS Secrets Manager and injected into the container at runtime by the ECS task execution role — never stored in code or environment files."
+    },
+
+    technicalDetails: [
+      {
+        service: "Docker + ECR",
+        details: "Flask app containerized using a python:3.12-slim base image. Built for linux/amd64 to ensure ECS compatibility regardless of developer machine architecture (Apple Silicon builds arm64 by default). Images are tagged with the Git commit SHA for full traceability. ECR stores all image layers and reuses unchanged layers on subsequent pushes."
+      },
+      {
+        service: "ECS Fargate",
+        details: "Serverless container orchestration — no EC2 instances to manage. Task definition specifies 0.25 vCPU and 512MB memory. The task execution IAM role gives ECS permission to pull from ECR, write to CloudWatch Logs, and read secrets from Secrets Manager. Gunicorn serves the Flask app with 2 workers instead of Flask's built-in dev server."
+      },
+      {
+        service: "VPC Networking",
+        details: "Two public subnets and two private subnets across two Availability Zones. Internet Gateway for public subnet outbound access. NAT Gateway in a public subnet that allows private resources to access the internet without receiving incoming traffic. Use of route tables that define the routing behavior."
+      },
+      {
+        service: "Security Groups",
+        details: "Three security groups enforcing least-privilege: ALB accepts port 80 from 0.0.0.0/0, ECS accepts port 5000 from the ALB security group only, RDS accepts port 5432 from the ECS security group only. No direct internet access to ECS or RDS — all traffic is filtered through the ALB and controlled by security groups."
+      },
+      {
+        service: "GitHub Actions + OIDC",
+        details: "CI/CD pipeline triggers on every push to main. Instead of storing AWS access keys in GitHub, the pipeline uses OIDC to request a short-lived token from AWS that is valid only for that workflow run. The pipeline builds the image, pushes to ECR, updates the task definition with the new image, and deploys to ECS."
+      },
+      {
+        service: "AWS Secrets Manager",
+        details: "Database credentials stored as a JSON secret. The ECS task execution role has an IAM policy that allows it to retrieve the secret. ECS resolves the secret at container startup and injects the values as environment variables. The credentials never appear in the task definition, GitHub, or container logs."
+      }
+    ],
+
+    challenges: [
+      {
+        title: "Apple Silicon architecture mismatch",
+        problem: "ECS Fargate requires linux/amd64 images. Building on Apple Silicon (M-series chips) produces arm64 images by default. Pushing an arm64 image to ECR and trying to deploy on ECS fails with: 'image manifest does not contain descriptor matching platform linux/amd64'.",
+        solution: "Used Docker Buildx with the --platform flag to enforce the correct architecture. This is now baked into the GitHub Actions workflow so every automated build produces the correct architecture regardless of the developer machine.",
+        code: {
+          language: "bash",
+          title: "Cross-platform build command",
+          content: `# Build for ECS regardless of developer machine architecture
+  docker buildx build \\
+    --platform linux/amd64 \\
+    -t flask-api:v1 .`
+        },
+        benefits: [
+          "Works identically on Apple Silicon and Intel machines",
+          "Automated in CI/CD — no manual steps or flags to remember"
+        ]
+      },
+      {
+        title: "Private subnet connectivity for ECS",
+        problem: "ECS tasks in private subnets have no path to the internet by default. This means they cannot pull Docker images from ECR, reach external APIs, or receive updates — even though ECR is an AWS service.",
+        solution: "Deployed a NAT Gateway in the public subnet and added a route in the private subnet route table pointing 0.0.0.0/0 to the NAT Gateway. This gives private resources outbound internet access without exposing them to inbound connections.",
+        code: {
+          language: "bash",
+          title: "Private subnet route to NAT Gateway",
+          content: `# Route all outbound traffic from private subnets through NAT Gateway
+  aws ec2 create-route \\
+    --route-table-id YOUR_PRIVATE_RT_ID \\
+    --destination-cidr-block 0.0.0.0/0 \\
+    --nat-gateway-id YOUR_NAT_ID`
+        },
+        benefits: [
+          "ECS tasks can pull images from ECR and reach AWS services",
+          "No inbound internet connections possible to private resources"
+        ]
+      },
+      {
+        title: "Credentials management in ECS",
+        problem: "ECS task definitions are stored in AWS and visible to anyone with IAM describe permissions. Putting database passwords directly in environment variables in the task definition exposes them in plain text.",
+        solution: "Stored credentials in AWS Secrets Manager as a JSON object. Gave the ECS task execution role an IAM policy allowing it to retrieve the secret. ECS resolves the secret at container startup and injects the values as environment variables — the Flask app reads the same os.getenv() call without any code changes.",
+        code: {
+          language: "json",
+          title: "Secret reference in task definition",
+          content: `"secrets": [
+    {
+      "name": "DB_PASS",
+      "valueFrom": "arn:aws:secretsmanager:region:account:secret:flask-ecs/db-credentials:DB_PASS::"
+    },
+    {
+      "name": "DB_USER",
+      "valueFrom": "arn:aws:secretsmanager:region:account:secret:flask-ecs/db-credentials:DB_USER::"
+    }
+  ]`
+        },
+        benefits: [
+          "Credentials never appear in task definition JSON, GitHub, or logs",
+          "Secret rotation possible without redeploying the application",
+          "IAM policy scoped to a specific secret ARN — not all secrets"
+        ]
+      }
+    ],
+
+    codeBlocks: [
+      {
+        title: "GitHub Actions workflow with OIDC authentication",
+        language: "yaml",
+        code: `name: Build and Deploy to ECS
+
+  on:
+    push:
+      branches: [main]
+
+  permissions:
+    id-token: write   # Required for OIDC
+    contents: read
+
+  jobs:
+    deploy:
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v4
+
+        # No credentials stored — OIDC assumes role at runtime
+        - name: Configure AWS credentials via OIDC
+          uses: aws-actions/configure-aws-credentials@v4
+          with:
+            role-to-assume: \${{ vars.ACTIONS_ROLE_ARN }}
+            aws-region: \${{ vars.AWS_REGION }}
+
+        - name: Login to Amazon ECR
+          id: login-ecr
+          uses: aws-actions/amazon-ecr-login@v2
+
+        # Cross-platform build — linux/amd64 regardless of runner
+        - name: Build and push image
+          id: build-image
+          env:
+            ECR_REGISTRY: \${{ steps.login-ecr.outputs.registry }}
+            IMAGE_TAG: \${{ github.sha }}
+          run: |
+            docker buildx build --platform linux/amd64 \\
+              -t \$ECR_REGISTRY/flask-ecs-api:\$IMAGE_TAG \\
+              -t \$ECR_REGISTRY/flask-ecs-api:latest --push .
+            echo "image=\$ECR_REGISTRY/flask-ecs-api:\$IMAGE_TAG" >> \$GITHUB_OUTPUT
+
+        - name: Deploy to ECS
+          uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+          with:
+            task-definition: task-def-current.json
+            service: flask-ecs-service
+            cluster: flask-ecs-cluster
+            wait-for-service-stability: true`
+      },
+      {
+        title: "Flask app with SQLAlchemy and environment variable configuration",
+        language: "python",
+        code: `from flask import Flask, jsonify
+  from flask_sqlalchemy import SQLAlchemy
+  import os, datetime
+
+  app = Flask(__name__)
+
+  # All config comes from environment variables
+  # In ECS, these are injected by the task definition and Secrets Manager
+  DB_HOST = os.getenv("DB_HOST", "localhost")
+  DB_USER = os.getenv("DB_USER", "postgres")
+  DB_PASS = os.getenv("DB_PASS", "")
+  DB_NAME = os.getenv("DB_NAME", "flaskdb")
+
+  app.config['SQLALCHEMY_DATABASE_URI'] = (
+      f"postgresql://{DB_USER}:{DB_PASS}@{DB_HOST}:5432/{DB_NAME}"
+  )
+  db = SQLAlchemy(app)
+
+  class RequestLog(db.Model):
+      __tablename__ = 'request_logs'
+      id = db.Column(db.Integer, primary_key=True)
+      endpoint = db.Column(db.String(100))
+      timestamp = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+
+  @app.route('/health')
+  def health():
+      # ALB calls this every 30 seconds — keep it fast, no DB call
+      return jsonify({"status": "healthy"}), 200
+
+  @app.route('/')
+  def index():
+      log = RequestLog(endpoint='/')
+      db.session.add(log)
+      db.session.commit()
+      return jsonify({
+          "version": "3.0",
+          "total_requests": RequestLog.query.count(),
+          "environment": os.getenv("ENVIRONMENT", "local")
+      }), 200`
+      }
+    ],
+
+    metrics: [
+      { label: "Deployment time", value: "< 3 min" },
+      { label: "Stored credentials", value: "Zero" },
+      { label: "AWS services used", value: "9" },
+      { label: "Subnets across 2 AZs", value: "4" }
+    ],
+
+    lessons: [
+      "Container architecture forces you to think explicitly about configuration — nothing is assumed. Every port, every environment variable, every network path must be intentional. This mindset leads to more secure and maintainable applications.",
+      "The NAT Gateway is the most expensive 'invisible' resource in a basic VPC setup. Understanding what it does (and when you actually need it) is a question that comes up constantly in cloud engineering roles.",
+      "OIDC authentication over stored credentials is not just more secure — it is simpler. No key rotation, no secrets to manage, no risk of credentials leaking in logs. It should be the default approach for CI/CD pipelines.",
+      "Debugging containerized applications requires knowing where to look: CloudWatch Logs for application errors, ECS service events for deployment failures, and VPC Flow Logs for network issues. Each layer has its own observability tool."
+    ]
+  },
   // Template for future projects
   "project-template": {
     title: "Project Title Here",
