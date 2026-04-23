@@ -556,7 +556,7 @@ jobs:
     },
 
     architecture: {
-      image: "/Resources/images/flask-ecs-architecture.png",
+      image: "/Resources/images/flask-ecs-architecture.jpg",
       description: "Traffic enters the VPC through an Internet Gateway and reaches the Application Load Balancer in the public subnets. The ALB forwards requests to ECS Fargate tasks running in private subnets, which connect to RDS PostgreSQL also in private subnets. ECS tasks pull their Docker images from ECR via the NAT Gateway. Database credentials are stored in AWS Secrets Manager and injected into the container at runtime by the ECS task execution role — never stored in code or environment files."
     },
 
