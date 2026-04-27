@@ -1,4 +1,4 @@
-# AWS Cloud Portfolio with CI/CD Pipeline
+# Portfolio Website — Deployed on AWS with CI/CD
 
 Production-ready static website deployed on AWS with automated deployment pipeline and intelligent cache invalidation.
 
@@ -6,7 +6,7 @@ Production-ready static website deployed on AWS with automated deployment pipeli
 ![GitHub Actions](https://img.shields.io/badge/CI%2FCD-GitHub%20Actions-blue)
 ![Deploy](https://github.com/Kevinnra/Kevinnra.github.io/actions/workflows/deploy.yml/badge.svg)
 
-**[Live Demo](https://www.kevinnramirez.com)** | **[Portfolio Page](https://www.kevinnramirez.com/projects/project.html?id=aws-portfolio)** | **[LinkedIn](https://linkedin.com/in/kevinnramirez)**
+**[Live Demo](https://www.kevinnramirez.com)** | **[Portfolio Page](https://www.kevinnramirez.com/projects/project-v3.html?id=aws-portfolio)** | **[LinkedIn](https://linkedin.com/in/kevinnramirez)**
 
 ---
 
@@ -49,51 +49,60 @@ S3 serves as the origin server storing website files. CloudFront delivers conten
 .
 ├── .github/
 │   └── workflows/
-│       └── deploy.yml          # CI/CD pipeline configuration
+│       └── deploy.yml              # CI/CD pipeline — S3 sync + CloudFront invalidation
 ├── css/
-│   └── style.css               # Main stylesheet
+│   └── style.css                   # Global styles and design tokens
 ├── js/
-│   └── main.js                 # JavaScript functionality
-│   └── contact-form.js         # Form submission handler
+│   ├── script.js                   # Navigation, smooth scroll, sidebar
+│   └── contact-form.js             # Contact form — calls serverless API
 ├── projects/
-│   ├── project.html            # Dynamic project template
-│   ├── project-data.js         # Project content data
-│   ├── project-loader.js       # Content loader script
-│   └── project-styles.css      # Project page styles
+│   ├── project-v3.html             # Project detail page (HTML shell)
+│   ├── project-loader-v3.js        # Injects project content at runtime
+│   ├── project-styles-v3.css       # Project page styles
+│   └── project-data.js             # All project content (single source of truth)
 ├── Resources/
-│   └── images/                 # Image assets
-├── index.html                  # Homepage
-└── README.md                   # This file
+│   ├── Kevinn-Ramirez-Resume.pdf   # Downloadable resume
+│   └── images/                     # Architecture diagrams, profile photo, logos
+├── CNAME                           # Custom domain — kevinnramirez.com
+├── favicon.ico                     # Site icon
+├── index.html                      # Homepage
+└── README.md                       # This file
 ```
 
 ---
 
 ## How to Run Locally
 
+> **Note:** The site uses absolute paths (`/css/style.css`, `/projects/project-data.js`, etc.) so opening `index.html` directly in a browser will not load styles or scripts. A local server is required.
+
 ### Prerequisites
-- Git installed
-- Web browser
-- (Optional) Python or Node.js for local server
+- Git
+- Python 3 **or** Node.js
 
 ### Steps
 
 ```bash
-# Clone repository
-git clone https://github.com/Kevinnra/Kevinnra.github.io.git
-cd Kevinnra.github.io
+# 1. Clone the repository
+git clone https://github.com/Kevinnra/Portfolio-Website-Deployed-on-AWS-with-CI-CD.git
+cd Portfolio-Website-Deployed-on-AWS-with-CI-CD
 
-# Open in browser directly
-open index.html
+# 2. Start a local server from the repo root
 
-# OR serve with Python
-python -m http.server 8000
-# Visit http://localhost:8000
+# Option A — Python (no install needed)
+python3 -m http.server 8080
 
-# OR serve with Node.js
-npx http-server -p 8000
+# Option B — Node.js
+npx serve .
 ```
 
-Expected output: Website loads with all styles and navigation working.
+Then open your browser:
+
+| Page | URL |
+|------|-----|
+| Homepage | http://localhost:8080 |
+| AWS Portfolio project | http://localhost:8080/projects/project-v3.html?id=aws-portfolio |
+| Serverless API project | http://localhost:8080/projects/project-v3.html?id=serverless-api |
+| Flask ECS project | http://localhost:8080/projects/project-v3.html?id=flask-ecs-api |
 
 ---
 
@@ -147,7 +156,7 @@ Dev/learning setup — production workloads with higher traffic would cost more.
 ## Links
 
 - **Live Demo**: [www.kevinnramirez.com](https://www.kevinnramirez.com)
-- **Portfolio Project Page**: [kevinnramirez.com/projects/aws-portfolio](https://www.kevinnramirez.com/projects/project.html?id=aws-portfolio)
+- **Portfolio Project Page**: [kevinnramirez.com/projects/aws-portfolio](https://www.kevinnramirez.com/projects/project-v3.html?id=aws-portfolio)
 - **LinkedIn**: [linkedin.com/in/kevinnramirez](https://linkedin.com/in/kevinnramirez)
 
 
